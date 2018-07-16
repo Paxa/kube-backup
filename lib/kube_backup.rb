@@ -109,6 +109,7 @@ module KubeBackup
           next
         end
 
+        # skip pods with ownerReferences (means created by deployment, cronjob, daemonset)
         if item["kind"] == "Pod" && item.dig("metadata", "ownerReferences")
           if item["metadata"]["ownerReferences"].size > 1
             puts YAML.dump(item)
@@ -122,13 +123,17 @@ module KubeBackup
         end
 
         namespace = item.dig("metadata", "namespace")
+
         if skip_namespaces.include?(namespace)
           name = item.dig("metadata", "name")
           logger.info "skip resource #{namespace}/#{item["kind"]}/#{name} by namespace filter"
+          next
         end
+
         if only_namespaces && !only_namespaces.include?(namespace)
           name = item.dig("metadata", "name")
           logger.info "skip resource #{namespace}/#{item["kind"]}/#{name} by namespace filter"
+          next
         end
 
         if skip_object?(item, skip_patterns)
