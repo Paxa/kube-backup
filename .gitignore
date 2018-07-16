@@ -2,3 +2,4 @@
 .DS_Store
 TODO.md
 try_*
+kube_state/

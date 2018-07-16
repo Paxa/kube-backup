@@ -13,7 +13,8 @@ class KubeBackup::CLI
     vars = [
       :target_path, :skip_namespaces, :only_namespaces,
       :global_resources, :extra_global_resources, :skip_global_resources,
-      :resources, :extra_resources, :skip_resources, :skip_objects
+      :resources, :extra_resources, :skip_resources, :skip_objects,
+      :git_user, :git_email
     ]
 
     vars.each do |var|
@@ -79,6 +80,9 @@ class KubeBackup::CLI
 
       c.option '--repo-url VAL', 'Git repo URL (env var GIT_REPO_URL)'
       c.option '--target VAL', 'Local git path (env var TARGET_PATH)'
+
+      c.option '--git-user VAL', 'Git username for commit (env var GIT_USER)'
+      c.option '--git-email VAL', 'Git email for commit (env var GIT_EMAIL)'
 
       c.action do |args, options|
         options.default(default_args_from_env(target_path: "./kube_state"))

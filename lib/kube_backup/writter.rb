@@ -1,5 +1,6 @@
 require 'yaml'
 require 'fileutils'
+require 'socket'
 
 module KubeBackup
   class Writter
@@ -32,34 +33,34 @@ module KubeBackup
       end
     end
 
-    def push_changes!(message)
+    def push_changes!(message, options)
       Dir.chdir(@target) do
-        res = KubeBackup.cmd(%{git add .})
+        email = options[:git_email] || "kube-backup@#{Socket.gethostname}"
+        name  = options[:git_name] || "kube-backup"
 
-        unless res[:success]
-          KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
-          KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
-          raise res[:stderr] || "git commit error"
-        end
+        run_cmd! %{git config user.email "#{email}"}
+        run_cmd! %{git config user.name "#{name}"}
 
-        res = KubeBackup.cmd(%{git commit -m "#{message}"})
+        run_cmd! %{git add .}
+        run_cmd! %{git commit -m "#{message}"}
 
-        unless res[:success]
-          KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
-          KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
-          raise res[:stderr] || "git commit error"
-        end
+        res = run_cmd! %{git push origin master}
 
-        res = KubeBackup.cmd(%{git push origin master})
-
-        unless res[:success]
-          KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
-          KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
-          raise res[:stderr] || "git push error"
-        end
-
-        KubeBackup.logger.info res[:stdout]
+        KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
+        KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
       end
+    end
+
+    def run_cmd!(command)
+      res = KubeBackup.cmd(command)
+
+      unless res[:success]
+        KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
+        KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
+        raise res[:stderr] || "git command error"
+      end
+
+      res
     end
 
     def print_changed_files

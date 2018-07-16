@@ -260,7 +260,7 @@ module KubeBackup
 
     if writter.has_changes?
       message = "Changes at #{Time.now.strftime("%F %T")}"
-      writter.push_changes!(message)
+      writter.push_changes!(message, options)
     end
   end
 
