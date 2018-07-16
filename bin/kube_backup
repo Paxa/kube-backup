@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/kube_backup'
+require_relative '../lib/kube_backup/cli'
+
+KubeBackup::CLI.new.run
