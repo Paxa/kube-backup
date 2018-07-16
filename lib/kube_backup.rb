@@ -117,7 +117,7 @@ module KubeBackup
           end
 
           ref = item["metadata"]["ownerReferences"].first
-          if ref["kind"] == "DaemonSet" || ref["kind"] == "ReplicaSet"
+          if ref["kind"] == "DaemonSet" || ref["kind"] == "ReplicaSet" || ref["kind"] == "Job"
             next
           end
         end
