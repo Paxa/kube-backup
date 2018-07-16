@@ -29,7 +29,6 @@ module KubeBackup
     :daemonset,
     :configmap,
     :cronjob,
-    :endpoints,
     :ingress,
     :networkpolicy,
     :persistentvolumeclaim,
@@ -181,6 +180,7 @@ module KubeBackup
       if resource["metadata"]["annotations"]
         resource["metadata"]["annotations"].delete("kubectl.kubernetes.io/last-applied-configuration")
         resource["metadata"]["annotations"].delete("control-plane.alpha.kubernetes.io/leader")
+        resource["metadata"]["annotations"].delete("deployment.kubernetes.io/revision")
 
         if resource["metadata"]["annotations"] == {}
           resource["metadata"].delete("annotations")
