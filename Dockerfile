@@ -3,7 +3,7 @@ FROM lachlanevenson/k8s-kubectl
 MAINTAINER Pavel Evstigneev <pavel.evst@gmail.com>
 
 RUN apk upgrade --update-cache --available && \
-    apk add curl openssl git bash ruby ruby-bundler ruby-json && \
+    apk add curl openssl openssh git bash ruby ruby-bundler ruby-json && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
 
