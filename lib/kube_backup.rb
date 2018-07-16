@@ -258,8 +258,31 @@ module KubeBackup
   def self.push_changes!(options)
     writter = Writter.new(options[:target_path], options[:repo_url])
 
-    if writter.has_changes?
-      message = "Changes at #{Time.now.strftime("%F %T")}"
+    changes_list = writter.get_changes
+
+    if changes_list
+      changes_lines = changes_list.split("\n")
+      namespaces = []
+      resources = []
+
+      changes_lines.each do |line|
+        info = line.strip.match(/^(?<prefix>.+?)\s+(?<file>.+)$/)
+        file_parts = info["file"].sub(/\.yaml$/, '').split("/")
+        if file_parts[0] != "_global_"
+          namespaces << file_parts[0]
+        end
+        resources << file_parts[1]
+      end
+      namespaces.uniq!
+      resources.uniq!
+
+      message = [
+        "Updated",
+        resources.size > 0 ? "#{resources.join(", ")}" : nil,
+        namespaces.size > 0 ? "in namespace#{namespaces.size > 1 ? "s" : ""} #{namespaces.join(", ")}." : nil,
+        "#{changes_lines.size} item#{changes_lines.size > 1 ? "s" : ""}"
+      ].compact.join(" ")
+
       writter.push_changes!(message, options)
     end
   end

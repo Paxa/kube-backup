@@ -14,7 +14,7 @@ module KubeBackup
       remove_repo_content!
     end
 
-    def has_changes?
+    def get_changes
       Dir.chdir(@target) do
         changes = KubeBackup.cmd(%{git status --porcelain})
 
@@ -28,7 +28,7 @@ module KubeBackup
           return false
         else
           puts changes[:stdout]
-          return true
+          return changes[:stdout]
         end
       end
     end
