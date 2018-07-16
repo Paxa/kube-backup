@@ -14,4 +14,6 @@ ADD . /opt/app
 
 RUN bundle install --retry 10 --system
 
+ENV PATH $PATH:/opt/app/bin
+
 ENTRYPOINT ["bin/kube_backup"]
