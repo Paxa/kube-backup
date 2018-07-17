@@ -181,6 +181,7 @@ module KubeBackup
         resource["metadata"]["annotations"].delete("kubectl.kubernetes.io/last-applied-configuration")
         resource["metadata"]["annotations"].delete("control-plane.alpha.kubernetes.io/leader")
         resource["metadata"]["annotations"].delete("deployment.kubernetes.io/revision")
+        resource["metadata"]["annotations"].delete("generation")
 
         if resource["metadata"]["annotations"] == {}
           resource["metadata"].delete("annotations")
