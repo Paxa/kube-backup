@@ -27,6 +27,7 @@ module KubeBackup
     :secret,
     :deployment,
     :daemonset,
+    :statefulset,
     :configmap,
     :cronjob,
     :ingress,
@@ -35,6 +36,13 @@ module KubeBackup
     :rolebinding,
     :service,
     :pod
+  ].freeze
+
+  SKIP_POD_OWNERS = [
+    "DaemonSet",
+    "ReplicaSet",
+    "Job",
+    "StatefulSet"
   ].freeze
 
   def self.perform_backup!(options = {})
@@ -116,7 +124,7 @@ module KubeBackup
           end
 
           ref = item["metadata"]["ownerReferences"].first
-          if ref["kind"] == "DaemonSet" || ref["kind"] == "ReplicaSet" || ref["kind"] == "Job"
+          if SKIP_POD_OWNERS.include?(ref["kind"])
             next
           end
         end
