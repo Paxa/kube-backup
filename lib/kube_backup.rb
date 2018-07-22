@@ -35,7 +35,8 @@ module KubeBackup
     :persistentvolumeclaim,
     :rolebinding,
     :service,
-    :pod
+    :pod,
+    :endpoints
   ].freeze
 
   SKIP_POD_OWNERS = [
@@ -126,6 +127,15 @@ module KubeBackup
           ref = item["metadata"]["ownerReferences"].first
           if SKIP_POD_OWNERS.include?(ref["kind"])
             next
+          end
+        end
+
+        if item["kind"] == "Endpoints"
+          if item["subsets"] && item["subsets"][0] && addresses = item["subsets"][0]["addresses"]
+            if addresses[0] && addresses[0]["targetRef"] && addresses[0]["targetRef"]["kind"] == "Pod"
+              # skip endpoints created by services
+              next
+            end
           end
         end
 
