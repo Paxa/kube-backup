@@ -78,6 +78,8 @@ module KubeBackup::Plugins
 
       users.each do |user|
         KubeBackup.logger.info "Saving user #{user['login']}"
+        user.delete('lastSeenAtAge')
+        user.delete('lastSeenAt')
         @writter.write_raw("_grafana_/users/#{user['login']}.json", JSON.pretty_generate(user))
       end
     end
