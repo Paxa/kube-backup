@@ -3,12 +3,15 @@ require_relative './kube_backup/cmd_utils'
 require_relative './kube_backup/log_util'
 require_relative './kube_backup/writter'
 require_relative './kube_backup/logger'
+require_relative './kube_backup/plugins/grafana'
 
 require 'json'
 require 'yaml'
 require 'colorize'
 
 module KubeBackup
+  module Plugins; end
+
   extend KubeBackup::CmdUtils
   extend KubeBackup::Logger
 
@@ -163,6 +166,8 @@ module KubeBackup
         writter.write_ns_res(item)
       end
     end
+
+    Plugins::Grafana.new(writter).run
 
     writter.print_changed_files
   end

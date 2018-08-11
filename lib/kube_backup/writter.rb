@@ -79,6 +79,21 @@ module KubeBackup
       write_yaml("_global_/#{type}/#{resource["metadata"]["name"]}.yaml", resource)
     end
 
+    def write_raw(path, content)
+      full_path = File.join(@target, path)
+      full_path.gsub!(":", "_")
+
+      dirname = File.dirname(full_path)
+
+      if dirname != @target
+        FileUtils.mkdir_p(dirname)
+      end
+
+      File.open(full_path, 'w') do |f|
+        f.write(content)
+      end
+    end
+
     def write_ns_res(resource)
       ns = resource["metadata"]["namespace"]
       type = resource["kind"] #gsub(/(.)([A-Z])/,'\1_\2').downcase

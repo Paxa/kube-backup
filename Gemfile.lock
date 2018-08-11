@@ -4,6 +4,7 @@ GEM
     colorize (0.8.1)
     commander (4.4.5)
       highline (~> 1.7.2)
+    excon (0.62.0)
     highline (1.7.10)
 
 PLATFORMS
@@ -12,6 +13,7 @@ PLATFORMS
 DEPENDENCIES
   colorize
   commander
+  excon
 
 BUNDLED WITH
    1.16.1
