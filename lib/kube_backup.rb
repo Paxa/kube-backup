@@ -52,6 +52,10 @@ module KubeBackup
   def self.perform_backup!(options = {})
     logger.info "Args: #{LogUtil.hash(options)}"
 
+    if !options[:repo_url] || options[:repo_url] == ''
+      raise OptionParser::MissingArgument, "Git repo-url is required, please specify --repo-url or GIT_REPO_URL"
+    end
+
     global_types = combine_types(GLOBAL_TYPES.dup,
       extras: options[:extra_global_resources],
       exclude: options[:skip_global_resources],
@@ -134,10 +138,12 @@ module KubeBackup
         end
 
         if item["kind"] == "Endpoints"
-          if item["subsets"] && item["subsets"][0] && addresses = item["subsets"][0]["addresses"]
-            if addresses[0] && addresses[0]["targetRef"] && addresses[0]["targetRef"]["kind"] == "Pod"
-              # skip endpoints created by services
-              next
+          if item["subsets"] && item["subsets"][0]
+            if addresses = item["subsets"][0]["addresses"] || addresses = item["subsets"][0]["notReadyAddresses"]
+              if addresses[0] && addresses[0]["targetRef"] && addresses[0]["targetRef"]["kind"] == "Pod"
+                # skip endpoints created by services
+                next
+              end
             end
           end
         end

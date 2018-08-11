@@ -91,6 +91,8 @@ class KubeBackup::CLI
       end
     end
 
+    default_command :backup
+
     run!
   end
 end
