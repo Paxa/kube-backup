@@ -17,12 +17,16 @@ module KubeBackup
 
   GLOBAL_TYPES = [
     :node,
+    :apiservice,
     :clusterrole,
     :clusterrolebinding,
     :podsecuritypolicy,
     :storageclass,
     :persistentvolume,
-    :customresourcedefinition
+    :customresourcedefinition,
+    :mutatingwebhookconfiguration,
+    :validatingwebhookconfiguration,
+    :priorityclass
   ].freeze
 
   TYPES = [
@@ -39,7 +43,9 @@ module KubeBackup
     :rolebinding,
     :service,
     :pod,
-    :endpoints
+    :endpoints,
+    :resourcequota,
+    :horizontalpodautoscaler
   ].freeze
 
   SKIP_POD_OWNERS = [
@@ -194,7 +200,15 @@ module KubeBackup
 
     res = cmd("kubectl", command, resource, *args, ENV.to_h)
 
-    JSON.parse(res[:stdout])
+    if !res[:success]
+      logger.error res[:stderr]
+    end
+
+    if res[:stdout] && res[:stdout].size > 0
+      JSON.parse(res[:stdout])
+    else
+      {"items" => []} # dummy
+    end
   end
 
   def self.clean_resource!(resource)
