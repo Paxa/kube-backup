@@ -16,4 +16,6 @@ RUN bundle install --retry 10 --system
 
 ENV PATH $PATH:/opt/app/bin
 
-ENTRYPOINT ["bin/kube_backup"]
+
+ENTRYPOINT ["sh", "-c"]
+CMD ["kube_backup backup && kube_backup push"]
