@@ -20,7 +20,7 @@ module KubeBackup
 
         unless changes[:success]
           KubeBackup.logger.error changes[:stderr]
-          raise changes[:stderr] || "git clone error"
+          raise changes[:stderr] || "git status error"
         end
 
         if changes[:stdout] == ''
@@ -129,10 +129,44 @@ module KubeBackup
     end
 
     def clone_repo!
+      check_known_hosts!
+
       res = KubeBackup.cmd(%{git clone --depth 10 "#{@git_url}" "#{@target}"})
       unless res[:success]
         KubeBackup.logger.error res[:stderr]
         raise res[:stderr] || "git clone error"
+      end
+    end
+
+    def check_known_hosts!
+      git_host = if m = @git_url.match(/.+@(.+?):/)
+        m[1]
+      elsif m = @git_url.match(/https?:\/\/(.+?)\//)
+        m[1]
+      else
+        KubeBackup.logger.warn "Can't parse git url, skip ssh-keyscan"
+        nil
+      end
+
+      if git_host
+        known_hosts = "#{ENV['HOME']}/.ssh/known_hosts"
+
+        if File.exist?(known_hosts)
+          content = File.open(known_hosts, 'r:utf-8', &:read)
+          if content.split("\n").any? {|l| l.strip.start_with?("#{git_host},") }
+            KubeBackup.logger.info "File #{known_hosts} already contain #{git_host}"
+            return
+          end
+        end
+
+        res = KubeBackup.cmd(%{ssh-keyscan -H #{git_host} >> #{known_hosts}})
+
+        if res[:success]
+          KubeBackup.logger.info "Added #{git_host} to #{known_hosts}"
+        else
+          KubeBackup.logger.error res[:stderr]
+          raise res[:stderr] || "git clone error"
+        end
       end
     end
   end
