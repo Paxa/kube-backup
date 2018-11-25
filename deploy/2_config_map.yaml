@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-backup-ssh-config
+  namespace: kube-backup
+data:
+  # generate new key with "ssh-keygen -f ./new_key" (press enter for all questions)
+  id_rsa: |
+    -----BEGIN RSA PRIVATE KEY-----
+    << new_key content goes here >>
+    -----END RSA PRIVATE KEY-----
+  id_rsa.pub: |
+    << new_key.pub content goes here >>

@@ -1,0 +1,46 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: kube-system-backup
+  namespace: kube-backup
+spec:
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  concurrencyPolicy: Forbid
+  schedule: "05,57 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccount: kube-backup-user
+          containers:
+            - name: backup
+              image: kuberhost/kube-backup
+              imagePullPolicy: Always
+              env:
+                - name: BACKUP_VERBOSE
+                  value: "1"
+                - name: GIT_REPO_URL
+                  value: git@gitlab.com:user/repo.git # <-- fill this in
+                - name: EXTRA_RESOURCES
+                  # just example, use `kubectl get crd` to see custom resources in your cluster
+                  value: certificate,issuer,alertmanager,prometheus,prometheusrule,servicemonitor
+                - name: TZ
+                  value: :Europe/Berlin
+                #- name: GRAFANA_URL
+                #  value: https://grafana.your-cluster.com
+                #- name: GRAFANA_TOKEN
+                #  value: aaabbbbcccDDDeee
+              volumeMounts:
+                - name: ssh-config
+                  mountPath: /root/.ssh/id_rsa
+                  subPath: id_rsa
+                - name: ssh-config
+                  mountPath: /root/.ssh/id_rsa.pub
+                  subPath: id_rsa.pub
+          volumes:
+            - name: ssh-config
+              configMap:
+                name: kube-backup-ssh-config
+                defaultMode: 256
