@@ -12,6 +12,9 @@ _grafana_ - grafana configs (when grafana enabled)
     <resource-name.yaml> - file for each resource
 ```
 
+### Screenshots
+<img src="https://user-images.githubusercontent.com/26019/48974539-12be7600-f097-11e8-91d7-b19c4c8d3e23.png" width="40%"> <img src="https://user-images.githubusercontent.com/26019/48974571-b9a31200-f097-11e8-8f0a-52afc67e4112.png" width="57%">
+
 ### Deployment
 
 Yaml manifests are in  [deploy folder](deploy).
