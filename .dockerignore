@@ -1,0 +1,7 @@
+.git
+node_modules
+kube_state
+deploy
+.DS_Store
+Dockerfile
+.dockerignore
