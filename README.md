@@ -17,7 +17,7 @@ _grafana_ - grafana configs (when grafana enabled)
 
 ### Deployment
 
-Yaml manifests are in  [deploy folder](deploy).
+Yaml manifests are in  [deploy folder](https://github.com/kuberhost/kube-backup/tree/master/deploy).
 
 #### Create Deployment Key
 
@@ -26,7 +26,7 @@ Github and gitlab support adding key only for one repository
 * Create repo
 * Generate ssh key `ssh-keygen -f ./new_key`
 * Add new ssh key to repo with write access
-* Save key to `2_config_map.yaml` (see comments in file)
+* Save key to [2_config_map.yaml](https://github.com/kuberhost/kube-backup/blob/master/deploy/2_config_map.yaml) (see comments in file)
 
 #### Testing Deployment
 
@@ -38,10 +38,12 @@ I recommend to run it periodically with kubernetes' CronJob resource, if you wan
 * `kube_backup push` - push changes to remote repository
 * `kube_backup help` - shows help
 
+Docker image by default runs `kube_backup backup && kube_backup push`
+
 ### Config
 
+* `GIT_REPO_URL` - remote git URL like `git@github.com:kuberhost/kube-backup.git` (required)
 * `BACKUP_VERBOSE` use 1 to enable verbose logging
-* `GIT_REPO_URL` - remote git URL
 * `TARGET_PATH` - local git repository folder, default `./kube_state`
 * `SKIP_NAMESPACES` - namespaces to exclude, separated by coma (,)
 * `ONLY_NAMESPACES` - whitelist namespaces
