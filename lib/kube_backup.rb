@@ -241,7 +241,9 @@ module KubeBackup
     end
 
     if resource["kind"] == "Service" && resource["spec"]
-      resource["spec"].delete("clusterIP")
+      if resource["spec"]["clusterIP"] != "None"
+        resource["spec"].delete("clusterIP")
+      end
       if resource["spec"] == {}
         resource.delete("spec")
       end
