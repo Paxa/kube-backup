@@ -7,6 +7,10 @@ RUN apk upgrade --update-cache --available && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
 
+# https://git.wiki.kernel.org/index.php/GitHosting
+RUN mkdir -p ~/.ssh && \
+    ssh-keyscan -t rsa,dsa github.com gitlab.com bitbucket.org codebasehq.com >> /root/.ssh/known_hosts
+
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 

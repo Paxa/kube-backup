@@ -60,6 +60,10 @@ Docker image by default runs `kube_backup backup && kube_backup push`
 * `GRAFANA_TOKEN` - grafana API token, create at https://your-grafana/org/apikeys
 * `TZ` - timezone of commit times. e.g. `:Europe/Berlin`
 
+### Security
+
+To avoid man in a middle attack it's recommended to provide `known_hosts` file. Default `known_hosts` contain keys for github.com, gitlab.com and bitbucket.org
+
 #### Custom Resources
 
 Let's say we have a cluster with prometheus and certmanager, they register custom resources and we want to add them in backup.
@@ -98,3 +102,7 @@ env:
   - name: EXTRA_RESOURCES
     value: alertmanager, prometheus, prometheusrule, servicemonitor, certificate, issuer
 ```
+
+---
+
+Special thanks to Pieter Lange for [original idea](https://github.com/pieterlange/kube-backup/)

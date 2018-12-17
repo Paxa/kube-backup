@@ -153,7 +153,7 @@ module KubeBackup
 
         if File.exist?(known_hosts)
           content = File.open(known_hosts, 'r:utf-8', &:read)
-          if content.split("\n").any? {|l| l.strip.start_with?("#{git_host},") }
+          if content.split("\n").any? {|l| l.strip.start_with?("#{git_host},", "#{git_host} ") }
             KubeBackup.logger.info "File #{known_hosts} already contain #{git_host}"
             return
           end
