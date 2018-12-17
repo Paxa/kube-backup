@@ -4,9 +4,11 @@ require 'socket'
 
 module KubeBackup
   class Writter
-    def initialize(target, git_url)
-      @target = target
-      @git_url = git_url
+    def initialize(options = {})
+      @target = options[:target_path]
+      @git_url = options[:repo_url]
+      @git_branch = options[:git_branch] || 'master'
+      @git_prefix = options[:git_prefix] || '.'
     end
 
     def init_repo!
@@ -15,8 +17,8 @@ module KubeBackup
     end
 
     def get_changes
-      Dir.chdir(@target) do
-        changes = KubeBackup.cmd(%{git status --porcelain})
+      Dir.chdir(File.join(@target, @git_prefix)) do
+        changes = KubeBackup.cmd(%{git status --porcelain "#{@git_prefix}" --untracked-files=all})
 
         unless changes[:success]
           KubeBackup.logger.error changes[:stderr]
@@ -33,18 +35,18 @@ module KubeBackup
       end
     end
 
-    def push_changes!(message, options)
+    def push_changes!(message)
       Dir.chdir(@target) do
-        email = options[:git_email] || "kube-backup@#{Socket.gethostname}"
-        name  = options[:git_name] || "kube-backup"
+        email = @options[:git_email] || "kube-backup@#{Socket.gethostname}"
+        name  = @options[:git_name] || "kube-backup"
 
         run_cmd! %{git config user.email "#{email}"}
         run_cmd! %{git config user.name "#{name}"}
 
-        run_cmd! %{git add .}
+        run_cmd! %{git add "#{@git_prefix}"}
         run_cmd! %{git commit -m "#{message}"}
 
-        res = run_cmd! %{git push origin master}
+        res = run_cmd! %{git push origin "#{@git_branch}"}
 
         KubeBackup.logger.error res[:stdout] if res[:stdout] != ''
         KubeBackup.logger.error res[:stderr] if res[:stderr] != ''
@@ -65,7 +67,7 @@ module KubeBackup
 
     def print_changed_files
       Dir.chdir(@target) do
-        res = KubeBackup.cmd(%{git status --porcelain})
+        res = KubeBackup.cmd(%{git status --porcelain "#{@git_prefix}"})
         if res[:stdout] == ''
           KubeBackup.logger.info "No changes"
         else
@@ -80,7 +82,7 @@ module KubeBackup
     end
 
     def write_raw(path, content)
-      full_path = File.join(@target, path)
+      full_path = File.join(@target, @git_prefix, path)
       full_path.gsub!(":", "_")
 
       dirname = File.dirname(full_path)
@@ -102,7 +104,7 @@ module KubeBackup
     end
 
     def write_yaml(path, data)
-      full_path = File.join(@target, path)
+      full_path = File.join(@target, @git_prefix, path)
       full_path.gsub!(":", "_")
 
       dirname = File.dirname(full_path)
@@ -117,7 +119,8 @@ module KubeBackup
     end
 
     def remove_repo_content!
-      objects = Dir.entries(@target).map do |object|
+      
+      objects = Dir.entries(File.join(@target, @git_prefix)).map do |object|
         if object.start_with?(".")
           nil
         else
@@ -131,7 +134,9 @@ module KubeBackup
     def clone_repo!
       check_known_hosts!
 
-      res = KubeBackup.cmd(%{git clone --depth 10 "#{@git_url}" "#{@target}"})
+      res = KubeBackup.cmd(%{git clone -b "#{@git_branch}" --depth 10 "#{@git_url}" "#{@target}"})
+      FileUtils.mkdir_p(File.join(@target, @git_prefix))
+
       unless res[:success]
         KubeBackup.logger.error res[:stderr]
         raise res[:stderr] || "git clone error"

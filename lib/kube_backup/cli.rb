@@ -3,6 +3,8 @@ require 'commander'
 class KubeBackup::CLI
   include Commander::Methods
 
+  DEFAULT_VALUES = {target_path: "./kube_state"}
+
   def default_args_from_env(defaults = {})
     args = defaults
 
@@ -14,7 +16,7 @@ class KubeBackup::CLI
       :target_path, :skip_namespaces, :only_namespaces,
       :global_resources, :extra_global_resources, :skip_global_resources,
       :resources, :extra_resources, :skip_resources, :skip_objects,
-      :git_user, :git_email
+      :git_user, :git_email, :git_branch, :git_prefix
     ]
 
     vars.each do |var|
@@ -67,8 +69,11 @@ class KubeBackup::CLI
 
       c.option '--skip-objects VAL', 'Skip objects, as namespaces/ObjectType/name. Also can use * for any segment as default/Secret/*,app/Pod/*'
 
+      c.option '--git-branch VAL', 'Git branch, default is master (env var GIT_BRANCH)'
+      c.option '--git-prefix VAL', 'Path to the subdirectory in your repository (env var GIT_PREFIX)'
+
       c.action do |args, options|
-        options.default(default_args_from_env(target_path: "./kube_state"))
+        options.default(default_args_from_env(DEFAULT_VALUES))
         KubeBackup.perform_backup!(options.__hash__)
       end
     end
@@ -83,9 +88,11 @@ class KubeBackup::CLI
 
       c.option '--git-user VAL', 'Git username for commit (env var GIT_USER)'
       c.option '--git-email VAL', 'Git email for commit (env var GIT_EMAIL)'
+      c.option '--git-branch VAL', 'Git branch, default is master (env var GIT_BRANCH)'
+      c.option '--git-prefix VAL', 'Path to the subdirectory in your repository (env var GIT_PREFIX)'
 
       c.action do |args, options|
-        options.default(default_args_from_env(target_path: "./kube_state"))
+        options.default(default_args_from_env(DEFAULT_VALUES))
 
         KubeBackup.push_changes!(options.__hash__)
       end

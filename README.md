@@ -56,6 +56,8 @@ Docker image by default runs `kube_backup backup && kube_backup push`
 * `SKIP_OBJECTS` - use it to skip individual objects, such as `kube-backup/ConfigMap/kube-backup-ssh-config` (separated by coma, spaces around coma ignored)
 * `GIT_USER` - default is `kube-backup`
 * `GIT_EMAIL` - default is `kube-backup@$(HOSTNAME)`
+* `GIT_BRANCH` - Git branch, default is `master`
+* `GIT_PREFIX` - Path to the subdirectory in your repository
 * `GRAFANA_URL` - grafana api URL, e.g. `https://grafana.my-cluster.com`
 * `GRAFANA_TOKEN` - grafana API token, create at https://your-grafana/org/apikeys
 * `TZ` - timezone of commit times. e.g. `:Europe/Berlin`

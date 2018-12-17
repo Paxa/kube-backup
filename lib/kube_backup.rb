@@ -94,7 +94,7 @@ module KubeBackup
     skip_namespaces = options[:skip_namespaces] ? options[:skip_namespaces].split(",") : []
     only_namespaces = options[:only_namespaces] ? options[:only_namespaces].split(",") : nil
 
-    writter = Writter.new(options[:target_path], options[:repo_url])
+    writter = Writter.new(options)
     writter.init_repo!
 
     global_types.each do |type|
@@ -302,7 +302,7 @@ module KubeBackup
   end
 
   def self.push_changes!(options)
-    writter = Writter.new(options[:target_path], options[:repo_url])
+    writter = Writter.new(options)
 
     changes_list = writter.get_changes
 
@@ -311,8 +311,11 @@ module KubeBackup
       namespaces = []
       resources = []
 
+      prefix = options[:git_prefix] ? options[:git_prefix].sub(/\/$/, '') + "/" : false
+
       changes_lines.each do |line|
         info = line.strip.match(/^(?<prefix>.+?)\s+(?<file>.+)$/)
+        info["file"].sub!(prefix, '') if prefix
         file_parts = info["file"].sub(/\.yaml$/, '').split("/")
         if file_parts[0] != "_global_"
           namespaces << file_parts[0]
@@ -329,7 +332,7 @@ module KubeBackup
         "#{changes_lines.size} item#{changes_lines.size > 1 ? "s" : ""}"
       ].compact.join(" ")
 
-      writter.push_changes!(message, options)
+      writter.push_changes!(message)
     end
   end
 
