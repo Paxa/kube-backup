@@ -5,6 +5,7 @@ require 'socket'
 module KubeBackup
   class Writter
     def initialize(options = {})
+      @options = options
       @target = options[:target_path]
       @git_url = options[:repo_url]
       @git_branch = options[:git_branch] || 'master'
