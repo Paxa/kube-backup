@@ -318,6 +318,7 @@ module KubeBackup
         info["file"].sub!(prefix, '') if prefix
         file_parts = info["file"].sub(/\.yaml$/, '').split("/")
         if file_parts[0] != "_global_"
+          file_parts[0].sub!(/^"/, '')
           namespaces << file_parts[0]
         end
         resources << file_parts[1]
