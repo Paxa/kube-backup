@@ -37,6 +37,9 @@ module KubeBackup
         env_vars[key] ||= value
       end
 
+      # make it always use english
+      env_vars["LC_ALL"] = "C"
+
       escaped_args = args.map do |arg|
         if arg && arg.to_s.start_with?("|", ">", "<", "&")
           arg.to_s
