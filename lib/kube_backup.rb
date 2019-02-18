@@ -314,11 +314,12 @@ module KubeBackup
       prefix = options[:git_prefix] ? options[:git_prefix].sub(/\/$/, '') + "/" : false
 
       changes_lines.each do |line|
-        info = line.strip.match(/^(?<prefix>.+?)\s+(?<file>.+)$/)
+        line = line.strip.gsub('"', '')
+        info = line.match(/^(?<prefix>.+?)\s+(?<file>.+)$/)
         info["file"].sub!(prefix, '') if prefix
         file_parts = info["file"].sub(/\.yaml$/, '').split("/")
+
         if file_parts[0] != "_global_"
-          file_parts[0].sub!(/^"/, '')
           namespaces << file_parts[0]
         end
         resources << file_parts[1]
