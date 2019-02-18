@@ -2,6 +2,9 @@ module KubeBackup; end
 module KubeBackup::Plugins
 
   class Grafana
+
+    class FetchError < StandardError; end
+
     def initialize(writter)
       @grafana_url = ENV['GRAFANA_URL']
       @grafana_token = ENV['GRAFANA_TOKEN']
@@ -19,6 +22,9 @@ module KubeBackup::Plugins
       backup_frontend_settings
       backup_org
       backup_org_users
+    rescue FetchError => error
+      KubeBackup.logger.error("#{error.class}: #{error.message}\n#{error.backtrace.join("\n")}")
+      @writter.restore("_grafana_")
     end
 
     def backup_dashboards
@@ -96,6 +102,10 @@ module KubeBackup::Plugins
           'Authorization' => "Bearer #{@grafana_token}"
         }
       })
+
+      if response.status >= 400
+        raise FetchError, "Can not connect to grafana: #{url} - #{response.status} #{response.status_line}"
+      end
 
       JSON.parse(response.body)
     end

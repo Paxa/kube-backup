@@ -1,3 +1,4 @@
+require 'shellwords'
 require 'yaml'
 require 'fileutils'
 require 'socket'
@@ -119,8 +120,21 @@ module KubeBackup
       end
     end
 
+    def restore(path)
+      full_path = File.join(@git_prefix, path)
+
+      Dir.chdir(@target) do
+        res = KubeBackup.cmd(%{git checkout -f HEAD -- #{Shellwords.escape(full_path)}})
+        if res[:success]
+          KubeBackup.logger.info "Restored #{full_path} from HEAD"
+        else
+          KubeBackup.logger.error res[:stderr]
+          raise res[:stderr] || "git reset error"
+        end
+      end
+    end
+
     def remove_repo_content!
-      
       objects = Dir.entries(File.join(@target, @git_prefix)).map do |object|
         if object.start_with?(".")
           nil
