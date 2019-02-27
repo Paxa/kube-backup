@@ -45,7 +45,7 @@ module KubeBackup
         run_cmd! %{git config user.email "#{email}"}
         run_cmd! %{git config user.name "#{name}"}
 
-        run_cmd! %{git add "#{@git_prefix}"}
+        run_cmd! %{git add "#{@git_prefix}" --all}
         run_cmd! %{git commit -m "#{message}"}
 
         res = run_cmd! %{git push origin "#{@git_branch}"}
