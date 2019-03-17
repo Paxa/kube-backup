@@ -154,7 +154,15 @@ module KubeBackup
 
       unless res[:success]
         KubeBackup.logger.error res[:stderr]
-        raise res[:stderr] || "git clone error"
+        if res[:stderr] =~ /Remote branch #{@git_branch} not found in upstream origin/
+          Dir.chdir(@target) do
+            KubeBackup.logger.info("Init new repo..")
+            KubeBackup.cmd(%{git init .})
+            KubeBackup.cmd(%{git add remote master "#{@git_url}"})
+          end
+        else
+          raise res[:stderr] || "git clone error"
+        end
       end
     end
 
