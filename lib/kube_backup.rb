@@ -40,6 +40,7 @@ module KubeBackup
     :ingress,
     :networkpolicy,
     :persistentvolumeclaim,
+    :role,
     :rolebinding,
     :service,
     :pod,
