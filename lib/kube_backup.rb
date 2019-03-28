@@ -250,6 +250,20 @@ module KubeBackup
       end
     end
 
+    if resource["kind"] == "Pod"
+      resource["spec"].delete("nodeName")
+      resource["spec"].delete("tolerations")
+
+      (resource["spec"]["containers"] || []).each do |container|
+        if container['terminationMessagePath'] == "/dev/termination-log"
+          container.delete('terminationMessagePath')
+        end
+        if container['terminationMessagePolicy'] == "File"
+          container.delete('terminationMessagePolicy')
+        end
+      end
+    end
+
     resource
   end
 
