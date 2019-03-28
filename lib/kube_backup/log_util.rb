@@ -18,7 +18,6 @@ module KubeBackup
     end
 
     def hash(object)
-      result = "{"
       values = []
       object.each do |key, value|
         separator = ":"

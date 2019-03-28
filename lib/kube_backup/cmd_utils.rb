@@ -60,8 +60,8 @@ module KubeBackup
       stderr_str  = ""
       exit_status = nil
       start_time  = Time.now.to_f
-      process_error = nil
-      io_threads = []
+      #process_error = nil
+      #io_threads = []
 
       stdout_str, stderr_str, exit_status = Open3.capture3(env_vars, command)
 

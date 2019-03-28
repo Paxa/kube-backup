@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+data:
+  DATABASE_NAME: my_app
+kind: ConfigMap
+metadata:
+  name: general-config
+  namespace: app

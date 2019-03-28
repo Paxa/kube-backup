@@ -176,6 +176,7 @@ module KubeBackup
         end
 
         clean_resource!(item)
+        item = sort_keys!(item)
         writter.write_ns_res(item)
       end
     end
@@ -265,6 +266,22 @@ module KubeBackup
     end
 
     resource
+  end
+
+  def self.sort_keys!(resource)
+    resource.sort_by do |k, v|
+      if k == "apiVersion"
+        "_0"
+      elsif k == "kind"
+        "_1"
+      elsif k == "metadata"
+        "_2"
+      elsif k == "type"
+        "_3"
+      else
+        k
+      end
+    end.to_h
   end
 
   def self.combine_types(types, extras:, exclude:, only:)

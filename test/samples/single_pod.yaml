@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"kt","namespace":"app"},"spec":{"containers":[{"args":["sleep 1000000"],"command":["/bin/sh","-c"],"image":"evpavel/kt:0.4","name":"kt","resources":{"limits":{"cpu":"100m","memory":"300Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}}]}}
+  creationTimestamp: 2019-01-24T06:12:51Z
+  name: kt
+  namespace: app
+  resourceVersion: "173803040"
+  selfLink: /api/v1/namespaces/app/pods/kt
+  uid: 14ba4c6d-1f9f-11e9-be97-00505600fb02
+spec:
+  containers:
+  - args:
+    - sleep 1000000
+    command:
+    - /bin/sh
+    - -c
+    image: evpavel/kt:0.4
+    imagePullPolicy: IfNotPresent
+    name: kt
+    resources:
+      limits:
+        cpu: 100m
+        memory: 300Mi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-vg27v
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  nodeName: node-a1
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.alpha.kubernetes.io/notReady
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.alpha.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: default-token-vg27v
+    secret:
+      defaultMode: 420
+      secretName: default-token-vg27v
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: 2019-01-24T06:12:51Z
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: 2019-03-23T03:06:32Z
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: 2019-01-24T06:12:51Z
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://61941b15a5564bc4876fca83801d798c1f8ff91647f117fe109aa45227b8670d
+    image: evpavel/kt:0.4
+    imageID: docker-pullable://evpavel/kt@sha256:8e3d6197fbc75264e6271c0f9bdc7e8cc911ac41a9caa0d00541a8be6ab85a41
+    lastState:
+      terminated:
+        containerID: docker://2349193cf8738648a359cc0f32edf5184d5f596f985269820fd4941f5c1beb0f
+        exitCode: 0
+        finishedAt: 2019-03-23T03:06:30Z
+        reason: Completed
+        startedAt: 2019-03-11T13:19:50Z
+    name: kt
+    ready: true
+    restartCount: 5
+    state:
+      running:
+        startedAt: 2019-03-23T03:06:32Z
+  hostIP: 123.123.123.123
+  phase: Running
+  podIP: 123.123.123.123
+  qosClass: Burstable
+  startTime: 2019-01-24T06:12:51Z
