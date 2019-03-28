@@ -158,7 +158,7 @@ module KubeBackup
           Dir.chdir(@target) do
             KubeBackup.logger.info("Init new repo..")
             KubeBackup.cmd(%{git init .})
-            KubeBackup.cmd(%{git add remote master "#{@git_url}"})
+            KubeBackup.cmd(%{git add remote origin "#{@git_url}"})
           end
         else
           raise res[:stderr] || "git clone error"
