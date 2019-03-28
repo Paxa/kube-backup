@@ -3,13 +3,15 @@ FROM lachlanevenson/k8s-kubectl
 MAINTAINER Pavel Evstigneev <pavel.evst@gmail.com>
 
 RUN apk upgrade --update-cache --available && \
-    apk add curl openssl openssh git bash ruby ruby-bundler ruby-json && \
+    apk add curl openssl openssh git bash ruby ruby-json && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
 
 # https://git.wiki.kernel.org/index.php/GitHosting
 RUN mkdir -p ~/.ssh && \
     ssh-keyscan -t rsa,dsa github.com gitlab.com bitbucket.org codebasehq.com >> /root/.ssh/known_hosts
+
+RUN gem install bundler -v 2.0.1 --no-doc
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
