@@ -153,12 +153,14 @@ module KubeBackup
       FileUtils.mkdir_p(File.join(@target, @git_prefix))
 
       unless res[:success]
-        KubeBackup.logger.error res[:stderr]
+        KubeBackup.logger.error(res[:stderr])
         if res[:stderr] =~ /Remote branch #{@git_branch} not found in upstream origin/
           Dir.chdir(@target) do
             KubeBackup.logger.info("Init new repo..")
-            KubeBackup.cmd(%{git init .})
-            KubeBackup.cmd(%{git add remote origin "#{@git_url}"})
+            cmd_res = KubeBackup.cmd(%{git init .})
+            KubeBackup.logger.error(res[:stderr]) unless cmd_res[:success]
+            cmd_res = KubeBackup.cmd(%{git remote add origin "#{@git_url}"})
+            KubeBackup.logger.error(res[:stderr]) unless cmd_res[:success]
           end
         else
           raise res[:stderr] || "git clone error"
