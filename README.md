@@ -96,6 +96,15 @@ prometheusrule  monitoring.coreos.com  Namespaced
 servicemonitor  monitoring.coreos.com  Namespaced
 ```
 
+Even more useful output you can copy and paste directly into the environment variables below
+```
+$ kubectl get crd -o json | jq -r '.items | (.[] | [.spec.names.singular, .spec.group, .spec.scope]) | @tsv' | grep Cluster | cut -f 1 | paste -s -d,
+bgpconfiguration,clusterinformation,elasticsearchversion,etcdversion
+
+$ kubectl get crd -o json | jq -r '.items | (.[] | [.spec.names.singular, .spec.group, .spec.scope]) | @tsv' | grep Namespaced | cut -f 1 | paste -s -d,
+alertmanager,appbinding,backup,backupstoragelocation,cephblockpool,cephcluster
+```
+
 Set env variables in container spec:
 ```yaml
 env:
