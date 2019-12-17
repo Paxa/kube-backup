@@ -37,6 +37,7 @@ module KubeBackup
     :statefulset,
     :configmap,
     :cronjob,
+    :job,
     :ingress,
     :networkpolicy,
     :persistentvolumeclaim,
@@ -46,7 +47,10 @@ module KubeBackup
     :pod,
     :endpoints,
     :resourcequota,
-    :horizontalpodautoscaler
+    :horizontalpodautoscaler,
+    :limitrange,
+    :podtemplate,
+    :poddisruptionbudget
   ].freeze
 
   SKIP_POD_OWNERS = [
@@ -55,6 +59,11 @@ module KubeBackup
     "Job",
     "StatefulSet"
   ].freeze
+
+  SKIP_JOB_OWNERS = [
+    "CronJob",
+  ].freeze
+
 
   def self.perform_backup!(options = {})
     logger.info "Args: #{LogUtil.hash(options)}"
@@ -139,9 +148,16 @@ module KubeBackup
           end
 
           ref = item["metadata"]["ownerReferences"].first
-          if SKIP_POD_OWNERS.include?(ref["kind"])
-            next
+          next if SKIP_POD_OWNERS.include?(ref["kind"])
+        end
+
+        if item["kind"] == "Job" && item.dig("metadata", "ownerReferences")
+          if item["metadata"]["ownerReferences"].size > 1
+            puts YAML.dump(item)
+            raise "many ownerReferences"
           end
+          ref = item["metadata"]["ownerReferences"].first
+          next if SKIP_JOB_OWNERS.include?(ref["kind"])
         end
 
         if item["kind"] == "Endpoints"
@@ -255,17 +271,70 @@ module KubeBackup
       resource["spec"].delete("nodeName")
       resource["spec"].delete("tolerations")
 
-      (resource["spec"]["containers"] || []).each do |container|
-        if container['terminationMessagePath'] == "/dev/termination-log"
-          container.delete('terminationMessagePath')
-        end
-        if container['terminationMessagePolicy'] == "File"
-          container.delete('terminationMessagePolicy')
-        end
-      end
+      _cleanup_pod_spec(resource["spec"])
     end
 
+    if resource["kind"] == "Deployment" || resource["kind"] == "DaemonSet" || resource["kind"] == "StatefulSet"
+      meta = resource.dig('spec', 'template', 'metadata')
+      if meta.has_key?('creationTimestamp') && meta['creationTimestamp'].nil?
+        meta.delete('creationTimestamp')
+        if meta == {}
+          resource['spec']['template'].delete('metadata')
+        end
+      end
+      if resource['spec']['progressDeadlineSeconds'] == 600
+        resource['spec'].delete('progressDeadlineSeconds')
+      end
+      _cleanup_pod_spec(resource.dig('spec', 'template', 'spec'))
+    end
+
+    if resource["kind"] == "CronJob"
+      meta = resource.dig('spec', 'jobTemplate', 'metadata')
+      if meta.has_key?('creationTimestamp') && meta['creationTimestamp'].nil?
+        meta.delete('creationTimestamp')
+        if meta == {}
+          resource['spec']['jobTemplate'].delete('metadata')
+        end
+      end
+      if resource['spec']['progressDeadlineSeconds'] == 600
+        resource['spec'].delete('progressDeadlineSeconds')
+      end
+      _cleanup_pod_spec(resource.dig('spec', 'jobTemplate', 'spec'))
+    end
+
+
     resource
+  end
+
+  def self._cleanup_pod_spec(pod_spec)
+    if pod_spec['restartPolicy'] == "Always"
+      pod_spec.delete('restartPolicy')
+    end
+    if pod_spec['schedulerName'] == "default-scheduler"
+      pod_spec.delete('schedulerName')
+    end
+    if pod_spec['securityContext'] == {}
+      pod_spec.delete('securityContext')
+    end
+    if pod_spec['terminationGracePeriodSeconds'] == 30
+      pod_spec.delete('terminationGracePeriodSeconds')
+    end
+    if pod_spec['dnsPolicy'] == 'ClusterFirst'
+      pod_spec.delete('dnsPolicy')
+    end
+
+    (pod_spec["containers"] || []).each do |container|
+      _cleanup_container(container)
+    end
+  end
+
+  def self._cleanup_container(container)
+    if container['terminationMessagePath'] == "/dev/termination-log"
+      container.delete('terminationMessagePath')
+    end
+    if container['terminationMessagePolicy'] == "File"
+      container.delete('terminationMessagePolicy')
+    end
   end
 
   def self.sort_keys!(resource)
