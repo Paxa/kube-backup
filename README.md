@@ -46,6 +46,7 @@ Docker image by default runs `kube_backup backup && kube_backup push`
 * `BACKUP_VERBOSE` use 1 to enable verbose logging
 * `TARGET_PATH` - local git repository folder, default `./kube_state`
 * `SKIP_NAMESPACES` - namespaces to exclude, separated by coma (,)
+* `SKIP_NAMESPACES_REGEX` - namespaces to exclude, supports a single regex like `/^gitlab-runner-\d+$/` to match `gitlab-runner-1234`
 * `ONLY_NAMESPACES` - whitelist namespaces
 * `GLOBAL_RESOURCES` - override global resources list, default is `node, apiservice, clusterrole, clusterrolebinding, podsecuritypolicy, storageclass, persistentvolume, customresourcedefinition, mutatingwebhookconfiguration, validatingwebhookconfiguration, priorityclass`
 * `EXTRA_GLOBAL_RESOURCES` - use it to add resources to `GLOBAL_RESOURCES` list
