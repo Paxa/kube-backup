@@ -19,7 +19,7 @@ module KubeBackup
     end
 
     def get_changes
-      Dir.chdir(File.join(@target, @git_prefix)) do
+      Dir.chdir(@target) do
         changes = KubeBackup.cmd(%{git status --porcelain "#{@git_prefix}" --untracked-files=all})
 
         unless changes[:success]
