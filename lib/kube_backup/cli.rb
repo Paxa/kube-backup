@@ -13,7 +13,7 @@ class KubeBackup::CLI
     end
 
     vars = [
-      :target_path, :skip_namespaces, :only_namespaces,
+      :target_path, :skip_namespaces, :skip_namespaces_regex, :only_namespaces,
       :global_resources, :extra_global_resources, :skip_global_resources,
       :resources, :extra_resources, :skip_resources, :skip_objects,
       :git_user, :git_email, :git_branch, :git_prefix

@@ -102,6 +102,7 @@ module KubeBackup
     end
 
     skip_namespaces = options[:skip_namespaces] ? options[:skip_namespaces].split(",") : []
+    skip_namespaces_regex = options[:skip_namespaces_regex] ? options[:skip_namespaces_regex] : nil
     only_namespaces = options[:only_namespaces] ? options[:only_namespaces].split(",") : nil
 
     writter = Writter.new(options)
@@ -172,6 +173,12 @@ module KubeBackup
         end
 
         namespace = item.dig("metadata", "namespace")
+
+        if skip_namespaces_regex && namespace.match(skip_namespaces_regex)
+          name = item.dig("metadata", "name")
+          logger.info "skip resource #{namespace}/#{item["kind"]}/#{name} by skip_namespaces_regex filter"
+          next
+        end
 
         if skip_namespaces.include?(namespace)
           name = item.dig("metadata", "name")
