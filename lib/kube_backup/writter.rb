@@ -139,7 +139,7 @@ module KubeBackup
         if object.start_with?(".")
           nil
         else
-          File.join(@target, object)
+          File.join(@target, @git_prefix, object)
         end
       end.compact
 
