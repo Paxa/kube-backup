@@ -1,11 +1,10 @@
 FROM lachlanevenson/k8s-kubectl
 
-MAINTAINER Pavel Evstigneev <pavel.evst@gmail.com>
+LABEL maintainer="Pavel Evstigneev <pavel.evst@gmail.com>"
 
 RUN apk upgrade --update-cache --available && \
-    apk add curl openssl openssh git bash ruby ruby-json && \
-    update-ca-certificates && \
-    rm -rf /var/cache/apk/*
+    apk add --no-cache curl openssl openssh git bash ruby ruby-json ruby-dev build-base && \
+    update-ca-certificates
 
 # https://git.wiki.kernel.org/index.php/GitHosting
 RUN mkdir -p ~/.ssh && \
@@ -18,10 +17,12 @@ WORKDIR /opt/app
 
 ADD . /opt/app
 
-RUN bundle install --retry 10 --system
+RUN bundle config set --local without 'development test' && \
+    bundle install --retry 10 --system && \
+    apk del build-base ruby-dev && \
+    rm -rf /var/cache/apk/*
 
-ENV PATH $PATH:/opt/app/bin
-
+ENV PATH=$PATH:/opt/app/bin
 
 ENTRYPOINT ["sh", "-c"]
 CMD ["kube_backup backup && kube_backup push"]
