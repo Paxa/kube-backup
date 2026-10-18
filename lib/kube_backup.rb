@@ -102,7 +102,7 @@ module KubeBackup
     end
 
     skip_namespaces = options[:skip_namespaces] ? options[:skip_namespaces].split(",") : []
-    skip_namespaces_regex = options[:skip_namespaces_regex] ? options[:skip_namespaces_regex] : nil
+    skip_namespaces_regex = parse_regex(options[:skip_namespaces_regex])
     only_namespaces = options[:only_namespaces] ? options[:only_namespaces].split(",") : nil
 
     writter = Writter.new(options)
@@ -174,7 +174,7 @@ module KubeBackup
 
         namespace = item.dig("metadata", "namespace")
 
-        if skip_namespaces_regex && namespace.match(skip_namespaces_regex)
+        if skip_namespaces_regex && namespace && skip_namespaces_regex.match?(namespace)
           name = item.dig("metadata", "name")
           logger.info "skip resource #{namespace}/#{item["kind"]}/#{name} by skip_namespaces_regex filter"
           next
@@ -376,6 +376,29 @@ module KubeBackup
     end
 
     types
+  end
+
+  def self.parse_regex(input)
+    return nil if input.nil?
+    return input if input.is_a?(Regexp)
+
+    str = input.to_s.strip
+    return nil if str.empty?
+
+    if str.start_with?("/") && (last_slash = str.rindex("/")) && last_slash > 0
+      pattern = str[1...last_slash]
+      flags_str = str[(last_slash + 1)..]
+      flags = 0
+      flags |= Regexp::IGNORECASE if flags_str.include?("i")
+      flags |= Regexp::MULTILINE if flags_str.include?("m")
+      flags |= Regexp::EXTENDED if flags_str.include?("x")
+      Regexp.new(pattern, flags)
+    else
+      Regexp.new(str)
+    end
+  rescue RegexpError => e
+    logger.error "Invalid regex in skip_namespaces_regex: #{input} (#{e.message})"
+    nil
   end
 
   def self.skip_object?(item, patterns)

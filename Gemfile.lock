@@ -1,11 +1,23 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    colorize (0.8.1)
-    commander (4.4.7)
-      highline (~> 2.0.0)
-    excon (0.71.0)
-    highline (2.0.3)
+    colorize (1.1.0)
+    commander (6.0.0)
+      highline (~> 3.1)
+    drb (2.2.3)
+    excon (1.7.3)
+      logger
+    highline (3.1.2)
+      reline
+    io-console (0.9.4)
+    logger (1.7.0)
+    minitest (6.0.6)
+      drb (~> 2.0)
+      prism (~> 1.5)
+    prism (1.9.0)
+    rake (13.4.2)
+    reline (0.7.0)
+      io-console (~> 0.5)
 
 PLATFORMS
   ruby
@@ -14,6 +26,8 @@ DEPENDENCIES
   colorize
   commander
   excon
+  minitest
+  rake
 
 BUNDLED WITH
-   2.0.1
+  4.0.16

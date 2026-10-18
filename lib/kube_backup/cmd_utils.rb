@@ -4,14 +4,13 @@ require 'open3'
 module KubeBackup
   module CmdUtils
     def pipe_stream(from, to, buffer: nil, skip_piping: false)
-      thread = Thread.new do
+      Thread.new do
         begin
           while char = from.getc
             to.write(char) if !skip_piping
             buffer << char if buffer
           end
-        rescue IOError => error
-          #p error
+        rescue IOError
         end
 
         #remaining = from.read

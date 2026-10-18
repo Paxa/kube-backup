@@ -11,7 +11,7 @@ RUN apk upgrade --update-cache --available && \
 RUN mkdir -p ~/.ssh && \
     ssh-keyscan -t rsa,dsa github.com gitlab.com bitbucket.org codebasehq.com >> /root/.ssh/known_hosts
 
-RUN gem install bundler -v 2.0.1 --no-doc
+RUN gem install bundler --no-doc
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
